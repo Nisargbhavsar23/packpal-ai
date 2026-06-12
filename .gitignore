@@ -12,3 +12,7 @@ frontend/.env
 
 # General
 .DS_Store
+
+# Local PostgreSQL data
+backend/.pgdata_packpal/
+backend/.pgdata_packpal.log
