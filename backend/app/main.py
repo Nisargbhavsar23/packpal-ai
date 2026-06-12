@@ -1,0 +1,37 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.v1.db_check import router as db_check_router
+from app.api.v1.health import router as health_router
+from app.core.config import settings
+
+
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title=settings.PROJECT_NAME,
+        version=settings.PROJECT_VERSION,
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.BACKEND_CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    @app.get("/health", tags=["health"])
+    def root_health_check() -> dict[str, str]:
+        return {
+            "status": "ok",
+            "message": "PackPal AI backend is running",
+            "version": settings.PROJECT_VERSION,
+        }
+
+    app.include_router(health_router, prefix="/api/v1", tags=["health"])
+    app.include_router(db_check_router, prefix="/api/v1", tags=["database"])
+
+    return app
+
+
+app = create_app()
