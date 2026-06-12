@@ -6,3 +6,9 @@
 2026-06-12 09:01:28.006 IST [52498] LOG:  database system is ready to accept connections
 2026-06-12 09:06:28.006 IST [52499] LOG:  checkpoint starting: time
 2026-06-12 09:08:10.010 IST [52499] LOG:  checkpoint complete: wrote 1004 buffers (6.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=101.962 s, sync=0.035 s, total=102.004 s; sync files=347, longest=0.003 s, average=0.001 s; distance=4847 kB, estimate=4847 kB; lsn=0/19D99E0, redo lsn=0/19D99A8
+2026-06-12 12:08:53.773 IST [52499] LOG:  checkpoint starting: time
+2026-06-12 12:08:56.255 IST [52499] LOG:  checkpoint complete: wrote 25 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.470 s, sync=0.005 s, total=2.490 s; sync files=13, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=4363 kB; lsn=0/19D9EA0, redo lsn=0/19D9E68
+2026-06-12 12:23:53.261 IST [52499] LOG:  checkpoint starting: time
+2026-06-12 12:23:53.689 IST [52499] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.412 s, sync=0.002 s, total=0.428 s; sync files=5, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=3926 kB; lsn=0/19DA390, redo lsn=0/19DA358
+2026-06-12 15:05:02.287 IST [52499] LOG:  checkpoint starting: time
+2026-06-12 15:05:02.716 IST [52499] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.417 s, sync=0.002 s, total=0.433 s; sync files=5, longest=0.001 s, average=0.001 s; distance=1 kB, estimate=3534 kB; lsn=0/19DA9F8, redo lsn=0/19DA9C0
