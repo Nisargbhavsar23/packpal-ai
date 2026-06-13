@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Alert from "../components/Alert";
 import Badge from "../components/Badge";
 import Button from "../components/Button";
+import ChecklistBoard from "../components/ChecklistBoard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PageHeader from "../components/PageHeader";
@@ -189,15 +190,7 @@ function TripDetailPage() {
         </div>
       </section>
 
-      <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-950">Packing checklist</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          Packing checklist integration will be added in the next phase.
-        </p>
-        <Link to="/dashboard" className="mt-4 inline-flex text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-          Return to dashboard
-        </Link>
-      </section>
+      <ChecklistBoard tripId={trip.id} members={trip.members || []} />
 
       <ConfirmDialog
         isOpen={isConfirmOpen}
