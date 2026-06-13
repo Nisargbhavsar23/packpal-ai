@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import auth_router, db_check_router, health_router, trips_router
+from app.api.v1 import auth_router, db_check_router, health_router, trip_members_router, trips_router
 from app.core.config import settings
 
 
@@ -31,6 +31,7 @@ def create_app() -> FastAPI:
     app.include_router(db_check_router, prefix="/api/v1", tags=["database"])
     app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
     app.include_router(trips_router, prefix="/api/v1", tags=["trips"])
+    app.include_router(trip_members_router, prefix="/api/v1", tags=["trip members"])
 
     return app
 

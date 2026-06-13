@@ -9,6 +9,11 @@ from app.schemas.trip import (
     TripRead,
     TripUpdate,
 )
+from app.schemas.trip_member import (
+    TripMemberAdd,
+    TripMemberDeleteResponse,
+    TripMemberRoleUpdate,
+)
 from app.schemas.user import UserRead
 
 __all__ = [
@@ -20,7 +25,10 @@ __all__ = [
     "TripDeleteResponse",
     "TripDetail",
     "TripListItem",
+    "TripMemberAdd",
+    "TripMemberDeleteResponse",
     "TripMemberRead",
+    "TripMemberRoleUpdate",
     "TripRead",
     "TripUpdate",
     "UserCreate",
