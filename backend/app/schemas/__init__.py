@@ -10,6 +10,12 @@ from app.schemas.item import (
     ItemUpdate,
     UserBasicRead,
 )
+from app.schemas.password_reset import (
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+    ResetPasswordRequest,
+    ResetPasswordResponse,
+)
 from app.schemas.trip import (
     TripCreate,
     TripCreatorRead,
@@ -33,6 +39,8 @@ __all__ = [
     "CategoryDeleteResponse",
     "CategoryRead",
     "CategoryUpdate",
+    "ForgotPasswordRequest",
+    "ForgotPasswordResponse",
     "ItemCreate",
     "ItemDeleteResponse",
     "ItemDetail",
@@ -40,6 +48,8 @@ __all__ = [
     "ItemStatusLogRead",
     "ItemStatusUpdate",
     "ItemUpdate",
+    "ResetPasswordRequest",
+    "ResetPasswordResponse",
     "Token",
     "TokenData",
     "TripCreate",

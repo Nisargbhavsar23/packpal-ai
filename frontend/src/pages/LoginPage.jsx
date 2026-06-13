@@ -97,6 +97,11 @@ function LoginPage() {
             autoComplete="current-password"
             required
           />
+          <div className="-mt-2 text-right">
+            <Link to="/forgot-password" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
+              Forgot password?
+            </Link>
+          </div>
           <button
             type="submit"
             disabled={isSubmitting || isLoading}

@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str = "1.0.0"
     ENVIRONMENT: str = "development"
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+    FRONTEND_URL: str = "http://localhost:5173"
 
     DATABASE_URL: str = "postgresql+psycopg://postgres:postgres@localhost:5432/packpal_ai"
 

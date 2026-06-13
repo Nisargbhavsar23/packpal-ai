@@ -5,9 +5,11 @@ import MainLayout from "../layouts/MainLayout";
 import CreateTripPage from "../pages/CreateTripPage";
 import DashboardPage from "../pages/DashboardPage";
 import EditTripPage from "../pages/EditTripPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 import TripDetailPage from "../pages/TripDetailPage";
 
 const router = createBrowserRouter([
@@ -50,6 +52,8 @@ const router = createBrowserRouter([
       },
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <RegisterPage /> },
+      { path: "forgot-password", element: <ForgotPasswordPage /> },
+      { path: "reset-password", element: <ResetPasswordPage /> },
     ],
   },
 ]);
