@@ -4,6 +4,7 @@ import FeatureCard from "../components/FeatureCard";
 import ProgressBar from "../components/ProgressBar";
 import SectionHeader from "../components/SectionHeader";
 import StatusBadge from "../components/StatusBadge";
+import { useAuth } from "../context/AuthContext";
 
 const features = [
   {
@@ -60,6 +61,8 @@ const members = ["Trip Lead", "Member 1", "Member 2"];
 const statuses = ["Pending", "Packed", "Delivered"];
 
 function LandingPage() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="overflow-hidden">
       <section className="relative border-b border-slate-200 bg-gradient-to-b from-white to-slate-50">
@@ -74,7 +77,7 @@ function LandingPage() {
               for every trip without spreadsheet chaos.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button to="/register">Get Started</Button>
+              <Button to={isAuthenticated ? "/dashboard" : "/register"}>Get Started</Button>
               <Button to="/dashboard" variant="secondary">
                 View Dashboard
               </Button>
@@ -190,7 +193,7 @@ function LandingPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button to="/register">Start Planning</Button>
+              <Button to={isAuthenticated ? "/dashboard" : "/register"}>Start Planning</Button>
               <Button to="/dashboard" variant="secondary">
                 Explore Features
               </Button>
