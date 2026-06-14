@@ -193,11 +193,11 @@ function ChecklistBoard({ members = [], tripId }) {
   }
 
   return (
-    <section className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+    <section className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-950">Packing Checklist</h2>
-          <p className="mt-1 text-sm text-slate-600">Create and manage real packing items for this trip.</p>
+          <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Packing Checklist</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Create and manage packing items for this trip.</p>
         </div>
         <button
           type="button"
@@ -218,7 +218,7 @@ function ChecklistBoard({ members = [], tripId }) {
         <ChecklistFilters categories={categories} filters={filters} members={members} onChange={setFilters} />
       </div>
 
-      {successMessage && <p className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{successMessage}</p>}
+      {successMessage && <p className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">{successMessage}</p>}
       {error && (
         <div className="mt-5">
           <Alert>{error}</Alert>
@@ -227,13 +227,13 @@ function ChecklistBoard({ members = [], tripId }) {
 
       <div className="mt-5">
         {isLoading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <LoadingSpinner label="Loading checklist" />
           </div>
         ) : items.length === 0 ? (
           <EmptyState
-            title="No checklist items yet"
-            text="Add your first packing item to start organizing this trip."
+            title="No packing items yet"
+            text="Add your first item to begin tracking what needs to be packed or delivered."
             actionLabel="Add Item"
             disabledAction
           />

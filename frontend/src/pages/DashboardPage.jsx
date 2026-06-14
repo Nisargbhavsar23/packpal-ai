@@ -61,10 +61,10 @@ function DashboardPage() {
 
   const stats = useMemo(
     () => [
-      { label: "Active Trips", value: String(trips.length), helper: "Real trips from your account" },
-      { label: "Pending Items", value: "0", helper: "Checklist integration coming next" },
-      { label: "Packed Items", value: "0", helper: "Checklist integration coming next" },
-      { label: "Upcoming Trip", value: getUpcomingTrip(trips), helper: "Based on real trip dates" },
+      { label: "Active Trips", value: String(trips.length), helper: "Trips in your workspace" },
+      { label: "Pending Items", value: "0", helper: "Ready for your packing list" },
+      { label: "Packed Items", value: "0", helper: "Track progress as you pack" },
+      { label: "Upcoming Trip", value: getUpcomingTrip(trips), helper: "Based on your trip dates" },
     ],
     [trips],
   );
@@ -74,7 +74,7 @@ function DashboardPage() {
       <PageHeader
         badge="Trip Dashboard"
         title={`Welcome back, ${user?.name || "traveler"}`}
-        description="View and manage your real PackPal AI trips. Checklist integration will be added in the next phase."
+        description="View and manage your PackPal AI trips, packing progress, and travel tasks."
         actions={<Button to="/trips/new">Create Trip</Button>}
       />
 
@@ -93,19 +93,19 @@ function DashboardPage() {
       <section className="mt-10">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-950">Your trips</h2>
-            <p className="mt-1 text-sm text-slate-500">Trips returned by the backend trip management API.</p>
+            <h2 className="text-xl font-bold text-slate-950 dark:text-white">Your trips</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Create, review, and organize your group travel plans.</p>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <LoadingSpinner label="Loading trips" />
           </div>
         ) : trips.length === 0 ? (
           <EmptyState
-            title="No trips created yet"
-            text="Create your first group trip to start planning packing and logistics."
+            title="No trips yet"
+            text="Create your first trip to start organizing members, packing items, and travel tasks."
             actionLabel="Create Trip"
             actionTo="/trips/new"
           />
@@ -119,16 +119,16 @@ function DashboardPage() {
       </section>
 
       <section className="mt-10 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-950">Checklist preview</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Checklist items will appear after selecting a trip in the checklist phase.
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-bold text-slate-950 dark:text-white">Checklist preview</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            Checklist items will appear here once you add packing items.
           </p>
         </div>
 
-        <aside className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-950">Alerts</h2>
-          <p className="mt-2 text-sm text-slate-600">No active alerts.</p>
+        <aside className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-bold text-slate-950 dark:text-white">Alerts</h2>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">No active alerts.</p>
         </aside>
       </section>
     </div>

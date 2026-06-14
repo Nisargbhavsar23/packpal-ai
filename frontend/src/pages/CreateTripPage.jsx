@@ -45,7 +45,7 @@ function CreateTripPage() {
       <PageHeader
         badge="New Trip"
         title="Create a trip"
-        description="Add the basic trip details now. Members and checklists can be managed in later phases."
+        description="Add the trip details your group needs before planning packing and travel tasks."
       />
       <div className="mt-8">
         <TripForm submitLabel="Create Trip" cancelTo="/dashboard" isSubmitting={isSubmitting} error={error} onSubmit={handleCreate} />

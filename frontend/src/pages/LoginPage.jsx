@@ -47,16 +47,15 @@ function LoginPage() {
 
   return (
     <section className="mx-auto grid min-h-[calc(100vh-73px)] max-w-6xl items-center gap-8 px-5 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr]">
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">PackPal AI</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">Plan together with less friction.</h1>
-        <p className="mt-4 leading-7 text-slate-600">
-          Sign in to access your PackPal AI workspace, keep your session active, and prepare for trip
-          management in the next frontend phase.
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">PackPal AI</p>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">Access your travel planning workspace.</h1>
+        <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">
+          Sign in to coordinate trips, packing lists, and travel tasks with your group.
         </p>
-        <div className="mt-6 grid gap-3 text-sm text-slate-600">
-          {["JWT-backed sessions", "Protected dashboard", "Clean trip planning foundation"].map((item) => (
-            <div key={item} className="flex items-center gap-3 rounded-lg bg-slate-50 px-4 py-3">
+        <div className="mt-6 grid gap-3 text-sm text-slate-600 dark:text-slate-300">
+          {["Secure sign-in", "Protected trip workspace", "Collaborative packing made simple"].map((item) => (
+            <div key={item} className="flex items-center gap-3 rounded-lg bg-slate-50 px-4 py-3 dark:bg-slate-950">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               <span>{item}</span>
             </div>
@@ -64,9 +63,9 @@ function LoginPage() {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 sm:p-8">
-        <h2 className="text-2xl font-bold text-slate-950">Login</h2>
-        <p className="mt-2 text-sm text-slate-500">Access your travel packing workspace.</p>
+      <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/30 sm:p-8">
+        <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Login</h2>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Access your travel packing workspace.</p>
 
         {error && (
           <div className="mt-5">
@@ -98,7 +97,7 @@ function LoginPage() {
             required
           />
           <div className="-mt-2 text-right">
-            <Link to="/forgot-password" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800">
+            <Link to="/forgot-password" className="text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200">
               Forgot password?
             </Link>
           </div>
@@ -119,9 +118,9 @@ function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-5 text-center text-sm text-slate-500">
+        <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
           New to PackPal AI?{" "}
-          <Link to="/register" className="font-semibold text-emerald-700 hover:text-emerald-800">
+          <Link to="/register" className="font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200">
             Create an account
           </Link>
         </p>

@@ -86,7 +86,7 @@ function TripDetailPage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6">
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <LoadingSpinner label="Loading trip details" />
         </div>
       </div>
@@ -136,53 +136,53 @@ function TripDetailPage() {
       )}
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-950">Trip information</h2>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-bold text-slate-950 dark:text-white">Trip information</h2>
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-lg bg-slate-50 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Destination</dt>
-              <dd className="mt-1 font-semibold text-slate-950">{trip.destination}</dd>
+            <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-950">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Destination</dt>
+              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">{trip.destination}</dd>
             </div>
-            <div className="rounded-lg bg-slate-50 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Trip type</dt>
-              <dd className="mt-1 font-semibold text-slate-950">{trip.trip_type}</dd>
+            <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-950">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Trip type</dt>
+              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">{trip.trip_type}</dd>
             </div>
-            <div className="rounded-lg bg-slate-50 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Start date</dt>
-              <dd className="mt-1 font-semibold text-slate-950">{formatDate(trip.start_date)}</dd>
+            <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-950">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Start date</dt>
+              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">{formatDate(trip.start_date)}</dd>
             </div>
-            <div className="rounded-lg bg-slate-50 p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">End date</dt>
-              <dd className="mt-1 font-semibold text-slate-950">{formatDate(trip.end_date)}</dd>
+            <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-950">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">End date</dt>
+              <dd className="mt-1 font-semibold text-slate-950 dark:text-white">{formatDate(trip.end_date)}</dd>
             </div>
           </dl>
-          <div className="mt-5 rounded-lg bg-emerald-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Description</p>
-            <p className="mt-2 text-sm leading-6 text-emerald-950">{trip.description || "No description added."}</p>
+          <div className="mt-5 rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/40">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Description</p>
+            <p className="mt-2 text-sm leading-6 text-emerald-950 dark:text-emerald-100">{trip.description || "No description added."}</p>
           </div>
         </div>
 
-        <aside className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-950">Creator</h2>
-          <p className="mt-3 font-semibold text-slate-950">{trip.creator?.name || "Unknown"}</p>
-          <p className="mt-1 text-sm text-slate-500">{trip.creator?.email}</p>
+        <aside className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-xl font-bold text-slate-950 dark:text-white">Creator</h2>
+          <p className="mt-3 font-semibold text-slate-950 dark:text-white">{trip.creator?.name || "Unknown"}</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{trip.creator?.email}</p>
         </aside>
       </section>
 
-      <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-950">Members</h2>
-            <p className="mt-1 text-sm text-slate-500">Member management UI will be added later.</p>
+            <h2 className="text-xl font-bold text-slate-950 dark:text-white">Members</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">People connected to this trip appear here.</p>
           </div>
           <Badge tone="slate">{trip.members?.length || 0} members</Badge>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           {(trip.members || []).map((member) => (
-            <div key={member.id} className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 p-4">
+            <div key={member.id} className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
               <div>
-                <p className="font-semibold text-slate-950">{member.name}</p>
-                <p className="text-sm text-slate-500">{member.email}</p>
+                <p className="font-semibold text-slate-950 dark:text-white">{member.name}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{member.email}</p>
               </div>
               <Badge tone={member.role === "OWNER" ? "emerald" : "slate"}>{member.role}</Badge>
             </div>
@@ -196,7 +196,7 @@ function TripDetailPage() {
         isOpen={isConfirmOpen}
         isLoading={isDeleting}
         title="Delete this trip?"
-        description="This action removes the trip for all members. Backend permissions decide whether this action is allowed."
+        description="This action removes the trip for all members."
         confirmLabel="Delete Trip"
         onCancel={() => setIsConfirmOpen(false)}
         onConfirm={handleDelete}

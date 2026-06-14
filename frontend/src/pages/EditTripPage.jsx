@@ -83,12 +83,12 @@ function EditTripPage() {
       <PageHeader
         badge="Edit Trip"
         title="Update trip details"
-        description="Edit the core trip information. Backend permissions decide who can save changes."
+        description="Update the core trip information for your group."
       />
 
       <div className="mt-8">
         {isLoading && (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <LoadingSpinner label="Loading trip" />
           </div>
         )}

@@ -4,13 +4,13 @@ function ChecklistFilters({ categories, filters, members, onChange }) {
   }
 
   return (
-    <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2 lg:grid-cols-4">
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Status</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</span>
         <select
           value={filters.status || ""}
           onChange={(event) => updateFilter("status", event.target.value)}
-          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
         >
           <option value="">All</option>
           <option value="PENDING">PENDING</option>
@@ -20,11 +20,11 @@ function ChecklistFilters({ categories, filters, members, onChange }) {
       </label>
 
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Priority</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Priority</span>
         <select
           value={filters.priority || ""}
           onChange={(event) => updateFilter("priority", event.target.value)}
-          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
         >
           <option value="">All</option>
           <option value="LOW">LOW</option>
@@ -34,11 +34,11 @@ function ChecklistFilters({ categories, filters, members, onChange }) {
       </label>
 
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Category</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Category</span>
         <select
           value={filters.category_id || ""}
           onChange={(event) => updateFilter("category_id", event.target.value)}
-          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
         >
           <option value="">All</option>
           {categories.map((category) => (
@@ -50,11 +50,11 @@ function ChecklistFilters({ categories, filters, members, onChange }) {
       </label>
 
       <label className="block">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Assigned to</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Assigned to</span>
         <select
           value={filters.assigned_to_id || ""}
           onChange={(event) => updateFilter("assigned_to_id", event.target.value)}
-          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+          className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
         >
           <option value="">All</option>
           {members.map((member) => (

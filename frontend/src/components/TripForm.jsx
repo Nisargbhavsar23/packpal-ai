@@ -65,7 +65,7 @@ function TripForm({ initialValues = emptyTrip, submitLabel, cancelTo = "/dashboa
   }
 
   return (
-    <form className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" onSubmit={handleSubmit}>
+    <form className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8" onSubmit={handleSubmit}>
       {(validationError || error) && (
         <div className="mb-5">
           <Alert>{validationError || error}</Alert>
@@ -124,7 +124,7 @@ function TripForm({ initialValues = emptyTrip, submitLabel, cancelTo = "/dashboa
           required
         />
         <label className="block sm:col-span-2" htmlFor="trip-description">
-          <span className="text-sm font-semibold text-slate-700">Description</span>
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Description</span>
           <textarea
             id="trip-description"
             name="description"
@@ -132,7 +132,7 @@ function TripForm({ initialValues = emptyTrip, submitLabel, cancelTo = "/dashboa
             value={values.description || ""}
             onChange={handleChange}
             placeholder="Add optional trip notes"
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-emerald-950"
           />
         </label>
       </div>
@@ -140,7 +140,7 @@ function TripForm({ initialValues = emptyTrip, submitLabel, cancelTo = "/dashboa
       <div className="mt-6 flex flex-wrap justify-end gap-3">
         <Link
           to={cancelTo}
-          className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           Cancel
         </Link>

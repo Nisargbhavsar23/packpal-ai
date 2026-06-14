@@ -17,7 +17,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html.dark body {
+  background: #020617;
+  color: #e2e8f0;
+}
+
 input,
-button {
+button,
+select,
+textarea {
   font: inherit;
 }

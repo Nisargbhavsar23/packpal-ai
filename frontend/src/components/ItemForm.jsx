@@ -81,14 +81,14 @@ function ItemForm({ categories, error, isOpen, isSubmitting, item, members, onCa
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/40 px-5 py-8">
-      <form className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl" onSubmit={handleSubmit}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/50 px-5 py-8">
+      <form className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900" onSubmit={handleSubmit}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-950">{item ? "Edit checklist item" : "Add checklist item"}</h2>
-            <p className="mt-1 text-sm text-slate-500">Checklist data is saved to the PackPal AI backend.</p>
+            <h2 className="text-xl font-bold text-slate-950 dark:text-white">{item ? "Edit checklist item" : "Add checklist item"}</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Save packing details for this trip.</p>
           </div>
-          <button type="button" onClick={onCancel} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100">
+          <button type="button" onClick={onCancel} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
             Close
           </button>
         </div>
@@ -101,25 +101,25 @@ function ItemForm({ categories, error, isOpen, isSubmitting, item, members, onCa
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <label className="block sm:col-span-2">
-            <span className="text-sm font-semibold text-slate-700">Item name</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Item name</span>
             <input
               name="name"
               type="text"
               value={values.name}
               onChange={handleChange}
               placeholder="Power Bank"
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-emerald-950"
               required
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Category</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Category</span>
             <select
               name="category_id"
               value={values.category_id}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
               required
             >
               <option value="">Select category</option>
@@ -132,25 +132,25 @@ function ItemForm({ categories, error, isOpen, isSubmitting, item, members, onCa
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Quantity</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Quantity</span>
             <input
               name="quantity"
               type="number"
               min="1"
               value={values.quantity}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
               required
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Priority</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Priority</span>
             <select
               name="priority"
               value={values.priority}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
             >
               <option value="LOW">LOW</option>
               <option value="MEDIUM">MEDIUM</option>
@@ -159,12 +159,12 @@ function ItemForm({ categories, error, isOpen, isSubmitting, item, members, onCa
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Assigned to</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Assigned to</span>
             <select
               name="assigned_to_id"
               value={values.assigned_to_id}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
             >
               <option value="">Unassigned</option>
               {members.map((member) => (
@@ -176,25 +176,25 @@ function ItemForm({ categories, error, isOpen, isSubmitting, item, members, onCa
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-700">Due date</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Due date</span>
             <input
               name="due_date"
               type="date"
               value={values.due_date}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-emerald-950"
             />
           </label>
 
           <label className="block sm:col-span-2">
-            <span className="text-sm font-semibold text-slate-700">Notes</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Notes</span>
             <textarea
               name="notes"
               rows="3"
               value={values.notes || ""}
               onChange={handleChange}
               placeholder="Carry fully charged power banks"
-              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-emerald-950"
             />
           </label>
         </div>
@@ -204,7 +204,7 @@ function ItemForm({ categories, error, isOpen, isSubmitting, item, members, onCa
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Cancel
           </button>
