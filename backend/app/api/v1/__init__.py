@@ -1,3 +1,4 @@
+from app.api.v1.ai import router as ai_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.categories import router as categories_router
 from app.api.v1.db_check import router as db_check_router
@@ -9,6 +10,7 @@ from app.api.v1.trips import router as trips_router
 
 __all__ = [
     "auth_router",
+    "ai_router",
     "categories_router",
     "db_check_router",
     "health_router",

@@ -1,3 +1,20 @@
+from app.schemas.ai import (
+    AIMissingItem,
+    AISuggestedItem,
+    AISuggestionHistoryItem,
+    ApplyItemsRequest,
+    ApplyItemsResponse,
+    ApplySuggestedItem,
+    AskAssistantRequest,
+    AskAssistantResponse,
+    MissingEssentialsRequest,
+    MissingEssentialsResponse,
+    PackingListRequest,
+    PackingListResponse,
+    SkippedSuggestedItem,
+    TripSummaryRequest,
+    TripSummaryResponse,
+)
 from app.schemas.auth import LoginRequest, Token, TokenData, UserCreate
 from app.schemas.category import CategoryCreate, CategoryDeleteResponse, CategoryRead, CategoryUpdate
 from app.schemas.item import (
@@ -35,6 +52,14 @@ from app.schemas.user import UserRead
 
 __all__ = [
     "LoginRequest",
+    "AIMissingItem",
+    "AISuggestedItem",
+    "AISuggestionHistoryItem",
+    "ApplyItemsRequest",
+    "ApplyItemsResponse",
+    "ApplySuggestedItem",
+    "AskAssistantRequest",
+    "AskAssistantResponse",
     "CategoryCreate",
     "CategoryDeleteResponse",
     "CategoryRead",
@@ -48,6 +73,10 @@ __all__ = [
     "ItemStatusLogRead",
     "ItemStatusUpdate",
     "ItemUpdate",
+    "MissingEssentialsRequest",
+    "MissingEssentialsResponse",
+    "PackingListRequest",
+    "PackingListResponse",
     "ResetPasswordRequest",
     "ResetPasswordResponse",
     "Token",
@@ -63,6 +92,9 @@ __all__ = [
     "TripMemberRoleUpdate",
     "TripRead",
     "TripUpdate",
+    "SkippedSuggestedItem",
+    "TripSummaryRequest",
+    "TripSummaryResponse",
     "UserBasicRead",
     "UserCreate",
     "UserRead",

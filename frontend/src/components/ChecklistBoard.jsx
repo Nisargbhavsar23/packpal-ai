@@ -31,7 +31,7 @@ function getActionError(error, fallback) {
   return fallback;
 }
 
-function ChecklistBoard({ members = [], tripId }) {
+function ChecklistBoard({ members = [], onItemsChange, refreshSignal = 0, tripId }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [categories, setCategories] = useState([]);
@@ -64,9 +64,13 @@ function ChecklistBoard({ members = [], tripId }) {
     setIsLoading(true);
     setError("");
     try {
-      const [categoryData, itemData] = await Promise.all([getCategories(), getTripItems(tripId, filters)]);
+      const hasActiveFilters = Object.values(filters).some(Boolean);
+      const filteredItemsRequest = getTripItems(tripId, filters);
+      const allItemsRequest = hasActiveFilters ? getTripItems(tripId, {}) : filteredItemsRequest;
+      const [categoryData, itemData, allItemData] = await Promise.all([getCategories(), filteredItemsRequest, allItemsRequest]);
       setCategories(categoryData);
       setItems(itemData);
+      onItemsChange?.(allItemData);
     } catch (loadError) {
       if (handleAuthFailure(loadError)) {
         return;
@@ -75,11 +79,11 @@ function ChecklistBoard({ members = [], tripId }) {
     } finally {
       setIsLoading(false);
     }
-  }, [filters, handleAuthFailure, tripId]);
+  }, [filters, handleAuthFailure, onItemsChange, tripId]);
 
   useEffect(() => {
     loadChecklistData();
-  }, [loadChecklistData]);
+  }, [loadChecklistData, refreshSignal]);
 
   const stats = useMemo(() => {
     const pending = items.filter((item) => item.status === "PENDING").length;

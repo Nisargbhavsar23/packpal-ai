@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Alert from "../components/Alert";
+import AIAssistantPanel from "../components/AIAssistantPanel";
 import Badge from "../components/Badge";
 import Button from "../components/Button";
 import ChecklistBoard from "../components/ChecklistBoard";
@@ -42,6 +43,8 @@ function TripDetailPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [checklistItems, setChecklistItems] = useState([]);
+  const [checklistRefreshKey, setChecklistRefreshKey] = useState(0);
 
   useEffect(() => {
     async function loadTrip() {
@@ -190,7 +193,19 @@ function TripDetailPage() {
         </div>
       </section>
 
-      <ChecklistBoard tripId={trip.id} members={trip.members || []} />
+      <AIAssistantPanel
+        trip={trip}
+        checklistItems={checklistItems}
+        members={trip.members || []}
+        onItemsApplied={() => setChecklistRefreshKey((current) => current + 1)}
+      />
+
+      <ChecklistBoard
+        tripId={trip.id}
+        members={trip.members || []}
+        onItemsChange={setChecklistItems}
+        refreshSignal={checklistRefreshKey}
+      />
 
       <ConfirmDialog
         isOpen={isConfirmOpen}

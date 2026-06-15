@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import (
+    ai_router,
     auth_router,
     categories_router,
     db_check_router,
@@ -44,6 +45,7 @@ def create_app() -> FastAPI:
     app.include_router(trips_router, prefix="/api/v1", tags=["trips"])
     app.include_router(trip_members_router, prefix="/api/v1", tags=["trip members"])
     app.include_router(items_router, prefix="/api/v1", tags=["items"])
+    app.include_router(ai_router, prefix="/api/v1", tags=["ai assistant"])
 
     return app
 
