@@ -4,11 +4,13 @@ import {
   applyAISuggestedItems,
   askAssistant,
   findMissingEssentials,
+  getDestinationInsights,
   generatePackingList,
   generateTripSummary,
 } from "../api/aiApi";
 import { useAuth } from "../context/AuthContext";
 import Alert from "./Alert";
+import AIDestinationInsights from "./AIDestinationInsights";
 import AIPackingList, { getItemKey } from "./AIPackingList";
 import AIQuestionBox from "./AIQuestionBox";
 import AITripSummary from "./AITripSummary";
@@ -19,6 +21,7 @@ const tabs = [
   { id: "missing", label: "Missing Essentials" },
   { id: "summary", label: "Trip Summary" },
   { id: "ask", label: "Ask Assistant" },
+  { id: "insights", label: "Destination Insights" },
 ];
 
 function getApiError(error, fallback) {
@@ -43,6 +46,29 @@ function getAssignedUserId(item) {
   return item.assigned_to?.id || item.assigned_to_id || null;
 }
 
+function getItemCategory(item) {
+  return item.category_name || item.category || "Uncategorized";
+}
+
+function buildCategoryBreakdown(checklistItems) {
+  const groupedItems = checklistItems.reduce((groups, item) => {
+    const category = getItemCategory(item);
+    return { ...groups, [category]: [...(groups[category] || []), item] };
+  }, {});
+
+  return Object.entries(groupedItems).map(([category, items]) => {
+    const packed = items.filter((item) => item.status === "PACKED").length;
+    const delivered = items.filter((item) => item.status === "DELIVERED").length;
+    const pending = items.filter((item) => item.status === "PENDING").length;
+    return {
+      category,
+      total_items: items.length,
+      pending_items: pending,
+      readiness_score: items.length === 0 ? 0 : Math.round(((packed + delivered) / items.length) * 100),
+    };
+  });
+}
+
 function buildLiveSummary(summary, checklistItems, members) {
   if (!summary) {
     return null;
@@ -62,6 +88,11 @@ function buildLiveSummary(summary, checklistItems, members) {
     pending_items: pending,
     packed_items: packed,
     delivered_items: delivered,
+    category_breakdown: buildCategoryBreakdown(checklistItems),
+    top_missing_priorities: checklistItems
+      .filter((item) => item.priority === "HIGH" && item.status === "PENDING")
+      .map((item) => item.name)
+      .slice(0, 5),
     high_priority_notes: highPending > 0 ? [`${highPending} high priority item${highPending === 1 ? "" : "s"} still pending.`] : ["No high priority items are pending."],
     member_summary: members.map((member) => {
       const assignedItems = checklistItems.filter((item) => getAssignedUserId(item) === member.user_id);
@@ -92,6 +123,7 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
   const [missingResult, setMissingResult] = useState(null);
   const [summaryResult, setSummaryResult] = useState(null);
   const [answerResult, setAnswerResult] = useState(null);
+  const [destinationInsights, setDestinationInsights] = useState(null);
   const [selectedPackingKeys, setSelectedPackingKeys] = useState([]);
   const [selectedMissingKeys, setSelectedMissingKeys] = useState([]);
   const askRequestIdRef = useRef(0);
@@ -200,6 +232,19 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
       if (askRequestIdRef.current === requestId) {
         setLoadingAction("");
       }
+    }
+  }
+
+  async function handleDestinationInsights() {
+    resetMessages();
+    setLoadingAction("insights");
+    try {
+      const result = await getDestinationInsights(trip.id);
+      setDestinationInsights(result);
+    } catch (requestError) {
+      setError(getApiError(requestError, "Failed to generate destination insights."));
+    } finally {
+      setLoadingAction("");
     }
   }
 
@@ -379,6 +424,14 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
           onAsk={handleAskAssistant}
           question={question}
           setQuestion={setQuestion}
+        />
+      )}
+
+      {activeTab === "insights" && (
+        <AIDestinationInsights
+          insights={destinationInsights}
+          isLoading={loadingAction === "insights"}
+          onGenerate={handleDestinationInsights}
         />
       )}
     </section>

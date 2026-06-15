@@ -20,6 +20,7 @@ from app.schemas.ai import (
     ApplyItemsResponse,
     AskAssistantRequest,
     AskAssistantResponse,
+    DestinationInsightsResponse,
     MissingEssentialsRequest,
     MissingEssentialsResponse,
     PackingListRequest,
@@ -38,6 +39,8 @@ from app.services.ai_provider import (
 )
 from app.services.category_service import ensure_default_categories, get_category_by_name
 from app.services.trip_service import ensure_trip_admin_or_owner, ensure_trip_member
+from app.services.travel_context_service import build_travel_context
+from app.services.weather_service import get_weather_context
 
 T = TypeVar("T")
 
@@ -70,6 +73,7 @@ def generate_packing_list(
     provider = get_ai_provider()
     payload = jsonable_encoder(request_data)
     output = run_ai_provider(lambda: provider.generate_packing_list(context, payload))
+    output["items"] = filter_existing_suggested_items(output.get("items", []), context)
 
     response_data = {
         "provider": provider.provider_name,
@@ -92,6 +96,7 @@ def find_missing_essentials(
     provider = get_ai_provider()
     payload = jsonable_encoder(request_data)
     output = run_ai_provider(lambda: provider.find_missing_essentials(context, payload))
+    output["missing_items"] = filter_existing_suggested_items(output.get("missing_items", []), context)
 
     response_data = {
         "provider": provider.provider_name,
@@ -145,6 +150,27 @@ def ask_assistant(
     }
     response = validate_ai_response(lambda: AskAssistantResponse(suggestion_id=uuid.uuid4(), **response_data))
     suggestion = save_ai_suggestion(db, trip_id, "ASK_ASSISTANT", payload, response_data, provider.provider_name)
+    return response.model_copy(update={"suggestion_id": suggestion.id})
+
+
+def generate_destination_insights(
+    db: Session,
+    trip_id: uuid.UUID,
+    current_user: User,
+) -> DestinationInsightsResponse:
+    context = build_trip_ai_context(db, trip_id, current_user)
+    provider = get_ai_provider()
+    payload: dict[str, Any] = {}
+    output = run_ai_provider(lambda: provider.generate_destination_insights(context, payload))
+
+    response_data = {
+        "provider": provider.provider_name,
+        "provider_note": provider.provider_note,
+        "type": "DESTINATION_INSIGHTS",
+        **output,
+    }
+    response = validate_ai_response(lambda: DestinationInsightsResponse(suggestion_id=uuid.uuid4(), **response_data))
+    suggestion = save_ai_suggestion(db, trip_id, "DESTINATION_INSIGHTS", payload, response_data, provider.provider_name)
     return response.model_copy(update={"suggestion_id": suggestion.id})
 
 
@@ -234,6 +260,8 @@ def build_trip_ai_context(db: Session, trip_id: uuid.UUID, current_user: User) -
     ensure_trip_member(db, trip_id, current_user.id)
     categories = list(db.scalars(select(Category).order_by(Category.name.asc())).all())
     duration_days = max((trip.end_date - trip.start_date).days + 1, 1)
+    weather_context = get_weather_context(trip.destination, trip.start_date, trip.end_date)
+    travel_context = build_travel_context(trip, weather_context)
 
     return {
         "trip": {
@@ -271,6 +299,8 @@ def build_trip_ai_context(db: Session, trip_id: uuid.UUID, current_user: User) -
             for item in trip.items
         ],
         "categories": [{"id": str(category.id), "name": category.name} for category in categories],
+        "existing_items": [item.name for item in trip.items],
+        "travel_context": travel_context,
     }
 
 
@@ -298,6 +328,23 @@ def save_ai_suggestion(
 def ensure_trip_exists(db: Session, trip_id: uuid.UUID) -> None:
     if db.get(Trip, trip_id) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
+
+
+def filter_existing_suggested_items(items: list[dict[str, Any]], context: dict[str, Any]) -> list[dict[str, Any]]:
+    existing_names = _existing_context_item_names(context)
+    filtered_items = []
+    seen_names = set()
+    for item in items:
+        normalized_name = normalize_name(str(item.get("name", "")))
+        if not normalized_name or normalized_name in existing_names or normalized_name in seen_names:
+            continue
+        seen_names.add(normalized_name)
+        filtered_items.append(item)
+    return filtered_items
+
+
+def _existing_context_item_names(context: dict[str, Any]) -> set[str]:
+    return {normalize_name(item["name"]) for item in context.get("items", []) if item.get("name")}
 
 
 def resolve_category(db: Session, category_name: str) -> Category | None:

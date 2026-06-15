@@ -12,6 +12,7 @@ from app.schemas.ai import (
     ApplyItemsResponse,
     AskAssistantRequest,
     AskAssistantResponse,
+    DestinationInsightsResponse,
     MissingEssentialsRequest,
     MissingEssentialsResponse,
     PackingListRequest,
@@ -23,6 +24,7 @@ from app.services.ai_assistant_service import (
     apply_suggested_items,
     ask_assistant,
     find_missing_essentials,
+    generate_destination_insights,
     generate_packing_list,
     generate_trip_summary,
     list_ai_suggestions,
@@ -74,6 +76,15 @@ def ask_assistant_endpoint(
     current_user: User = Depends(get_current_active_user),
 ):
     return ask_assistant(db=db, trip_id=trip_id, request_data=request_data, current_user=current_user)
+
+
+@router.get("/destination-insights", response_model=DestinationInsightsResponse)
+def destination_insights_endpoint(
+    trip_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return generate_destination_insights(db=db, trip_id=trip_id, current_user=current_user)
 
 
 @router.get("/suggestions", response_model=list[AISuggestionHistoryItem])

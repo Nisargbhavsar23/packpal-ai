@@ -20,6 +20,11 @@ export async function askAssistant(tripId, payload) {
   return response.data;
 }
 
+export async function getDestinationInsights(tripId) {
+  const response = await axiosClient.get(`/api/v1/trips/${tripId}/ai/destination-insights`);
+  return response.data;
+}
+
 export async function applyAISuggestedItems(tripId, payload) {
   const response = await axiosClient.post(`/api/v1/trips/${tripId}/ai/apply-items`, payload);
   return response.data;

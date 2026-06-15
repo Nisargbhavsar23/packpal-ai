@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 from app.models.enums import ItemPriority
 from app.schemas.item import ItemRead
 
-SuggestionType = Literal["PACKING_LIST", "MISSING_ESSENTIALS", "TRIP_SUMMARY", "ASK_ASSISTANT"]
+SuggestionType = Literal["PACKING_LIST", "MISSING_ESSENTIALS", "TRIP_SUMMARY", "ASK_ASSISTANT", "DESTINATION_INSIGHTS"]
 
 
 class PackingListRequest(BaseModel):
@@ -67,6 +67,13 @@ class MemberAssignmentSummary(BaseModel):
     pending_items: int
 
 
+class CategoryReadinessSummary(BaseModel):
+    category: str
+    readiness_score: int = Field(ge=0, le=100)
+    total_items: int = 0
+    pending_items: int = 0
+
+
 class AIBaseResponse(BaseModel):
     suggestion_id: uuid.UUID
     provider: str
@@ -94,6 +101,8 @@ class TripSummaryResponse(AIBaseResponse):
     pending_items: int = 0
     packed_items: int = 0
     delivered_items: int = 0
+    category_breakdown: list[CategoryReadinessSummary] = []
+    top_missing_priorities: list[str] = []
     high_priority_notes: list[str]
     member_summary: list[MemberAssignmentSummary]
     recommendations: list[str]
@@ -103,6 +112,17 @@ class AskAssistantResponse(AIBaseResponse):
     type: Literal["ASK_ASSISTANT"] = "ASK_ASSISTANT"
     answer: str
     suggested_actions: list[str]
+
+
+class DestinationInsightsResponse(AIBaseResponse):
+    type: Literal["DESTINATION_INSIGHTS"] = "DESTINATION_INSIGHTS"
+    summary: str
+    local_travel_tips: list[str]
+    cultural_considerations: list[str]
+    common_mistakes: list[str]
+    packing_warnings: list[str]
+    transportation_notes: list[str]
+    safety_reminders: list[str]
 
 
 class AISuggestionHistoryItem(BaseModel):

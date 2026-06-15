@@ -54,6 +54,31 @@ function AITripSummary({ summary }) {
           </ul>
         </div>
       </div>
+
+      {(summary.category_breakdown?.length > 0 || summary.top_missing_priorities?.length > 0) && (
+        <div className="mt-5 grid gap-5 lg:grid-cols-2">
+          {summary.category_breakdown?.length > 0 && (
+            <div>
+              <h4 className="text-sm font-bold text-slate-950 dark:text-white">Category readiness</h4>
+              <div className="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                {summary.category_breakdown.map((category) => (
+                  <p key={category.category}>
+                    {category.category}: {category.readiness_score}% ready, {category.pending_items}/{category.total_items} pending
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+          {summary.top_missing_priorities?.length > 0 && (
+            <div>
+              <h4 className="text-sm font-bold text-slate-950 dark:text-white">Top missing priorities</h4>
+              <ul className="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                {summary.top_missing_priorities.map((priority) => <li key={priority}>{priority}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
