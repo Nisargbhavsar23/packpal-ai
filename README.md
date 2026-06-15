@@ -1,73 +1,81 @@
 # PackPal AI
 
-PackPal AI is a full-stack travel logistics platform for organizing group packing across trips, events, college tours, treks, hackathons, and vacations.
+AI-powered travel logistics and packing management platform.
 
-Phase 1 creates a clean starter foundation with a FastAPI backend, React frontend, environment configuration, database configuration, health checks, and a mock AI service.
+PackPal AI helps travelers and groups organize trips, manage packing checklists, receive AI-generated recommendations, and export travel plans.
+
+---
+
+## Features
+
+### Authentication
+- Register
+- Login
+- JWT Authentication
+- Forgot Password
+- Secure Password Reset
+
+### Trip Management
+- Create Trips
+- Edit Trips
+- Delete Trips
+- Trip Dashboard
+- Upcoming Trip Tracking
+
+### Checklist Management
+- Categories
+- Priority Levels
+- Status Tracking
+- Assigned Members
+- Progress Monitoring
+
+### AI Assistant (Gemini Powered)
+- Packing List Generation
+- Missing Essentials Detection
+- Trip Readiness Analysis
+- Travel Question Answering
+- Destination-Specific Recommendations
+- Dynamic Travel Suggestions
+
+### Export
+- PDF Checklist Export
+
+### User Experience
+- Responsive Design
+- Dark Theme
+- Light Theme
+- System Theme
+
+---
 
 ## Tech Stack
 
-- Backend: Python, FastAPI, PostgreSQL, SQLAlchemy, Alembic, Pydantic Settings
-- Frontend: React, Vite, Tailwind CSS, React Router, Axios
-- Future AI Providers: mock, Gemini, Ollama
+### Backend
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Alembic
+- JWT Authentication
 
-## Planned Features
+### Frontend
+- React
+- Vite
+- TailwindCSS
 
-- Trip creation and member invitations
-- Role-based collaboration
-- Categorized packing checklists
-- Item assignment and status tracking
-- Real-time updates
-- AI-generated packing lists
-- PDF checklist export
+### AI
+- Google Gemini API
 
-## Roadmap
+---
 
-- Phase 1: Project scaffold, health checks, environment config, database setup, mock AI service, basic frontend pages
-- Phase 2: Database models, migrations, and CRUD APIs for trips, members, categories, and items
-- Phase 3: JWT authentication and protected frontend routes
-- Phase 4: Checklist assignment workflows and status tracking
-- Phase 5: WebSocket-powered real-time updates
-- Phase 6: PDF export
-- Phase 7: Gemini integration with Ollama fallback
+## Project Status
 
-## Backend Setup
+Current Version: v1.0.0-beta
 
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --reload
-```
+Completed Through:
+- Phase 12
 
-Health endpoints:
-
-- `http://localhost:8000/health`
-- `http://localhost:8000/api/v1/health`
-
-## Frontend Setup
-
-```bash
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
-```
-
-The frontend runs at `http://localhost:5173`.
-
-## Environment Variables
-
-Copy each `.env.example` file before running the apps:
-
-```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-```
-
-Update `DATABASE_URL` when your PostgreSQL username, password, host, port, or database name differs from the default.
-
-## Future AI Integration Plan
-
-Phase 1 uses a mock AI provider only. In a later AI phase, PackPal AI will add Gemini as the primary provider using `gemini-3.1-flash-lite`, with Ollama as a local fallback provider using `llama3.2`.
+Upcoming:
+- Smart Weather Integration
+- Budget Planning
+- Travel Risk Alerts
+- AI Collaboration Features
