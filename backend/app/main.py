@@ -6,6 +6,7 @@ from app.api.v1 import (
     auth_router,
     categories_router,
     db_check_router,
+    export_router,
     health_router,
     items_router,
     password_reset_router,
@@ -27,6 +28,7 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["Content-Disposition"],
     )
 
     @app.get("/health", tags=["health"])
@@ -46,6 +48,7 @@ def create_app() -> FastAPI:
     app.include_router(trip_members_router, prefix="/api/v1", tags=["trip members"])
     app.include_router(items_router, prefix="/api/v1", tags=["items"])
     app.include_router(ai_router, prefix="/api/v1", tags=["ai assistant"])
+    app.include_router(export_router, prefix="/api/v1", tags=["export"])
 
     return app
 

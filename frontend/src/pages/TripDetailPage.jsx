@@ -9,6 +9,7 @@ import ChecklistBoard from "../components/ChecklistBoard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import LoadingSpinner from "../components/LoadingSpinner";
 import PageHeader from "../components/PageHeader";
+import PDFExportButton from "../components/PDFExportButton";
 import { deleteTrip, getTripById } from "../api/tripApi";
 import { useAuth } from "../context/AuthContext";
 
@@ -121,6 +122,7 @@ function TripDetailPage() {
             <Button to={`/trips/${trip.id}/edit`} variant="secondary">
               Edit Trip
             </Button>
+            <PDFExportButton tripId={trip.id} />
             <button
               type="button"
               onClick={() => setIsConfirmOpen(true)}

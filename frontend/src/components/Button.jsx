@@ -7,8 +7,8 @@ const variants = {
   ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
 };
 
-function Button({ children, to, type = "button", variant = "primary", className = "" }) {
-  const classes = `inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${variants[variant]} ${className}`;
+function Button({ children, className = "", disabled = false, onClick, to, type = "button", variant = "primary" }) {
+  const classes = `inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${variants[variant]} ${className}`;
 
   if (to) {
     return (
@@ -19,7 +19,7 @@ function Button({ children, to, type = "button", variant = "primary", className 
   }
 
   return (
-    <button type={type} className={classes}>
+    <button type={type} className={classes} disabled={disabled} onClick={onClick}>
       {children}
     </button>
   );
