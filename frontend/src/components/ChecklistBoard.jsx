@@ -31,7 +31,7 @@ function getActionError(error, fallback) {
   return fallback;
 }
 
-function ChecklistBoard({ members = [], onItemsChange, refreshSignal = 0, tripId }) {
+function ChecklistBoard({ members = [], onItemsChange, onMutationComplete, refreshSignal = 0, tripId }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [categories, setCategories] = useState([]);
@@ -128,6 +128,7 @@ function ChecklistBoard({ members = [], onItemsChange, refreshSignal = 0, tripId
       }
       closeForm();
       await loadChecklistData();
+      onMutationComplete?.();
     } catch (submitError) {
       if (handleAuthFailure(submitError)) {
         return;
@@ -146,6 +147,7 @@ function ChecklistBoard({ members = [], onItemsChange, refreshSignal = 0, tripId
       await updateTripItemStatus(tripId, item.id, { status });
       setSuccessMessage("Item status updated.");
       await loadChecklistData();
+      onMutationComplete?.();
     } catch (statusError) {
       if (handleAuthFailure(statusError)) {
         return;
@@ -168,6 +170,7 @@ function ChecklistBoard({ members = [], onItemsChange, refreshSignal = 0, tripId
       setItemToDelete(null);
       setSuccessMessage("Item deleted successfully.");
       await loadChecklistData();
+      onMutationComplete?.();
     } catch (deleteError) {
       if (handleAuthFailure(deleteError)) {
         return;

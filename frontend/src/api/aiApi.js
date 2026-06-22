@@ -25,6 +25,11 @@ export async function getDestinationInsights(tripId) {
   return response.data;
 }
 
+export async function getTravelReadiness(tripId) {
+  const response = await axiosClient.get(`/api/v1/trips/${tripId}/ai/readiness`);
+  return response.data;
+}
+
 export async function applyAISuggestedItems(tripId, payload) {
   const response = await axiosClient.post(`/api/v1/trips/${tripId}/ai/apply-items`, payload);
   return response.data;

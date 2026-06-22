@@ -14,6 +14,7 @@ from app.services.ai_prompt_service import (
     destination_insights_contract,
     missing_essentials_contract,
     packing_list_contract,
+    readiness_analysis_contract,
     trip_summary_contract,
 )
 
@@ -65,6 +66,10 @@ class BaseAIProvider(ABC):
 
     @abstractmethod
     def generate_destination_insights(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def analyze_travel_readiness(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError
 
 
@@ -347,6 +352,47 @@ class MockAIProvider(BaseAIProvider):
             "safety_reminders": _safety_notes(destination, context_text),
         }
 
+    def analyze_travel_readiness(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        travel_context = context.get("travel_context", {})
+        destination = travel_context.get("destination") or context["trip"].get("destination")
+        duration = travel_context.get("duration_days") or context["trip"].get("duration_days")
+        checklist = travel_context.get("checklist_summary", {})
+        weather = travel_context.get("weather", {})
+        context_text = _context_text(context, request_data)
+        risks = []
+        recommendations = []
+
+        if not _has_context_item(context, ["passport", "government id", "id"]):
+            risks.append({"severity": "HIGH", "title": "Travel Document Missing", "description": f"No travel document is listed for {destination}."})
+            recommendations.append(f"Add travel documents for {destination} before departure.")
+        if checklist.get("high_priority_pending_count", 0):
+            risks.append({"severity": "HIGH", "title": "High Priority Items Pending", "description": f"{checklist['high_priority_pending_count']} high-priority checklist item(s) are still pending."})
+            recommendations.append("Pack or assign high-priority pending items first.")
+        if any(word in context_text for word in ["goa", "maldives", "beach", "island"]):
+            if not _has_context_item(context, ["sunscreen", "swimwear"]):
+                risks.append({"severity": "MEDIUM", "title": "Beach Essentials Missing", "description": f"{destination} needs sun and water-ready packing for a {duration}-day trip."})
+                recommendations.append(f"Add sunscreen, swimwear, and waterproof storage for {destination}.")
+        if any(word in context_text for word in ["ladakh", "switzerland", "cold", "snow", "mountain"]):
+            if not _has_context_item(context, ["thermal", "jacket", "gloves"]):
+                risks.append({"severity": "HIGH", "title": "Cold Gear Missing", "description": f"{destination} may need thermal layers, jackets, and gloves."})
+                recommendations.append(f"Pack thermal wear and an insulated jacket for {destination}.")
+        if any(word in context_text for word in ["japan", "international", "switzerland", "maldives"]):
+            if not _has_context_item(context, ["adapter", "universal adapter"]):
+                risks.append({"severity": "MEDIUM", "title": "Power Adapter Missing", "description": f"International travel to {destination} may require a compatible adapter."})
+                recommendations.append("Carry a universal power adapter and keep chargers together.")
+        if (weather.get("rain_probability") or 0) >= 50 and not _has_context_item(context, ["umbrella", "rain jacket", "waterproof"]):
+            risks.append({"severity": "MEDIUM", "title": "Rain Protection Missing", "description": f"Weather context indicates rain risk for {destination}."})
+            recommendations.append("Add rain protection based on the weather forecast.")
+
+        if not risks:
+            risks.append({"severity": "LOW", "title": "Low Immediate Risk", "description": f"{destination} looks reasonably prepared from the current checklist."})
+        recommendations.append(f"Review the {duration}-day checklist for {destination} and close remaining pending items.")
+
+        return {
+            "top_risks": risks[:5],
+            "recommendations": _dedupe_preserve_order(recommendations)[:5],
+        }
+
 
 class GeminiAIProvider(BaseAIProvider):
     provider_name = "gemini"
@@ -379,6 +425,14 @@ class GeminiAIProvider(BaseAIProvider):
             context,
             request_data,
             destination_insights_contract(),
+        )
+
+    def analyze_travel_readiness(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        return self._generate_json(
+            "Analyze travel readiness risks and top recommendations using destination, weather, checklist, trip type, and duration. Return top risks and exactly five prioritized recommendations.",
+            context,
+            request_data,
+            readiness_analysis_contract(),
         )
 
     def _generate_json(
@@ -473,6 +527,11 @@ def _category_names(context: dict[str, Any]) -> set[str]:
 
 def _existing_item_names(context: dict[str, Any]) -> set[str]:
     return {normalize_name(item["name"]) for item in context["items"]}
+
+
+def _has_context_item(context: dict[str, Any], terms: list[str]) -> bool:
+    item_names = " ".join(item.get("name", "") for item in context.get("items", [])).lower()
+    return any(term.lower() in item_names for term in terms)
 
 
 def _with_known_category(item: dict[str, Any], categories: set[str]) -> dict[str, Any]:

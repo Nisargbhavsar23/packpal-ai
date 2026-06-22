@@ -46,6 +46,7 @@ function TripDetailPage() {
   const [deleteError, setDeleteError] = useState("");
   const [checklistItems, setChecklistItems] = useState([]);
   const [checklistRefreshKey, setChecklistRefreshKey] = useState(0);
+  const [readinessRefreshKey, setReadinessRefreshKey] = useState(0);
 
   useEffect(() => {
     async function loadTrip() {
@@ -199,13 +200,18 @@ function TripDetailPage() {
         trip={trip}
         checklistItems={checklistItems}
         members={trip.members || []}
-        onItemsApplied={() => setChecklistRefreshKey((current) => current + 1)}
+        onItemsApplied={() => {
+          setChecklistRefreshKey((current) => current + 1);
+          setReadinessRefreshKey((current) => current + 1);
+        }}
+        readinessRefreshSignal={readinessRefreshKey}
       />
 
       <ChecklistBoard
         tripId={trip.id}
         members={trip.members || []}
         onItemsChange={setChecklistItems}
+        onMutationComplete={() => setReadinessRefreshKey((current) => current + 1)}
         refreshSignal={checklistRefreshKey}
       />
 

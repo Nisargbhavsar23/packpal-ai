@@ -125,6 +125,31 @@ class DestinationInsightsResponse(AIBaseResponse):
     safety_reminders: list[str]
 
 
+class AIRiskItem(BaseModel):
+    severity: Literal["HIGH", "MEDIUM", "LOW"]
+    title: str
+    description: str
+
+
+class AIAlertItem(BaseModel):
+    priority: Literal["HIGH", "MEDIUM", "LOW"]
+    message: str
+
+
+class ReadinessCategoryScore(BaseModel):
+    score: int = Field(ge=0, le=100)
+    status: str
+
+
+class TravelReadinessResponse(BaseModel):
+    overall_score: int = Field(ge=0, le=100)
+    status: str
+    category_scores: dict[str, ReadinessCategoryScore]
+    top_risks: list[AIRiskItem]
+    alerts: list[AIAlertItem]
+    recommendations: list[str]
+
+
 class AISuggestionHistoryItem(BaseModel):
     id: uuid.UUID
     trip_id: uuid.UUID

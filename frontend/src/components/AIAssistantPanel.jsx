@@ -1,16 +1,18 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   applyAISuggestedItems,
   askAssistant,
   findMissingEssentials,
   getDestinationInsights,
+  getTravelReadiness,
   generatePackingList,
   generateTripSummary,
 } from "../api/aiApi";
 import { useAuth } from "../context/AuthContext";
 import Alert from "./Alert";
 import AIDestinationInsights from "./AIDestinationInsights";
+import AIReadinessDashboard from "./AIReadinessDashboard";
 import AIPackingList, { getItemKey } from "./AIPackingList";
 import AIQuestionBox from "./AIQuestionBox";
 import AITripSummary from "./AITripSummary";
@@ -22,6 +24,7 @@ const tabs = [
   { id: "summary", label: "Trip Summary" },
   { id: "ask", label: "Ask Assistant" },
   { id: "insights", label: "Destination Insights" },
+  { id: "readiness", label: "Travel Readiness" },
 ];
 
 function getApiError(error, fallback) {
@@ -105,7 +108,7 @@ function buildLiveSummary(summary, checklistItems, members) {
   };
 }
 
-function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, trip }) {
+function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, readinessRefreshSignal = 0, trip }) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("packing");
   const [error, setError] = useState("");
@@ -124,9 +127,12 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
   const [summaryResult, setSummaryResult] = useState(null);
   const [answerResult, setAnswerResult] = useState(null);
   const [destinationInsights, setDestinationInsights] = useState(null);
+  const [readinessResult, setReadinessResult] = useState(null);
   const [selectedPackingKeys, setSelectedPackingKeys] = useState([]);
   const [selectedMissingKeys, setSelectedMissingKeys] = useState([]);
   const askRequestIdRef = useRef(0);
+  const readinessRequestIdRef = useRef(0);
+  const lastReadinessRefreshSignalRef = useRef(0);
 
   const role = getUserRole(members, user);
   const canApplyItems = role === "OWNER" || role === "ADMIN";
@@ -135,6 +141,41 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
     () => buildLiveSummary(summaryResult, checklistItems, members),
     [checklistItems, members, summaryResult],
   );
+
+  const loadTravelReadiness = useCallback(async ({ clearMessages = false, showLoading = true } = {}) => {
+    const requestId = readinessRequestIdRef.current + 1;
+    readinessRequestIdRef.current = requestId;
+    if (clearMessages) {
+      resetMessages();
+    }
+    if (showLoading) {
+      setLoadingAction("readiness");
+    }
+    try {
+      const result = await getTravelReadiness(trip.id);
+      if (readinessRequestIdRef.current === requestId) {
+        setReadinessResult(result);
+      }
+    } catch (requestError) {
+      if (readinessRequestIdRef.current === requestId) {
+        setError(getApiError(requestError, "Failed to check travel readiness."));
+      }
+    } finally {
+      if (showLoading && readinessRequestIdRef.current === requestId) {
+        setLoadingAction("");
+      }
+    }
+  }, [trip.id]);
+
+  useEffect(() => {
+    const shouldRefresh = readinessRefreshSignal > 0
+      && lastReadinessRefreshSignalRef.current !== readinessRefreshSignal
+      && (Boolean(readinessResult) || activeTab === "readiness");
+    if (shouldRefresh) {
+      lastReadinessRefreshSignalRef.current = readinessRefreshSignal;
+      loadTravelReadiness({ showLoading: activeTab === "readiness" });
+    }
+  }, [activeTab, loadTravelReadiness, readinessRefreshSignal, readinessResult]);
 
   function resetMessages() {
     setError("");
@@ -246,6 +287,10 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
     } finally {
       setLoadingAction("");
     }
+  }
+
+  async function handleTravelReadiness() {
+    await loadTravelReadiness({ clearMessages: true, showLoading: true });
   }
 
   async function handleApplyItems(suggestionId, selectedItems) {
@@ -432,6 +477,14 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, t
           insights={destinationInsights}
           isLoading={loadingAction === "insights"}
           onGenerate={handleDestinationInsights}
+        />
+      )}
+
+      {activeTab === "readiness" && (
+        <AIReadinessDashboard
+          isLoading={loadingAction === "readiness"}
+          onGenerate={handleTravelReadiness}
+          readiness={readinessResult}
         />
       )}
     </section>

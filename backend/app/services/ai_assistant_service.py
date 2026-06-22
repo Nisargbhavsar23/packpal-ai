@@ -25,6 +25,7 @@ from app.schemas.ai import (
     MissingEssentialsResponse,
     PackingListRequest,
     PackingListResponse,
+    TravelReadinessResponse,
     SkippedSuggestedItem,
     TripSummaryRequest,
     TripSummaryResponse,
@@ -38,6 +39,7 @@ from app.services.ai_provider import (
     normalize_name,
 )
 from app.services.category_service import ensure_default_categories, get_category_by_name
+from app.services.readiness_engine import build_readiness_dashboard
 from app.services.trip_service import ensure_trip_admin_or_owner, ensure_trip_member
 from app.services.travel_context_service import build_travel_context
 from app.services.weather_service import get_weather_context
@@ -172,6 +174,31 @@ def generate_destination_insights(
     response = validate_ai_response(lambda: DestinationInsightsResponse(suggestion_id=uuid.uuid4(), **response_data))
     suggestion = save_ai_suggestion(db, trip_id, "DESTINATION_INSIGHTS", payload, response_data, provider.provider_name)
     return response.model_copy(update={"suggestion_id": suggestion.id})
+
+
+def generate_readiness_dashboard(
+    db: Session,
+    trip_id: uuid.UUID,
+    current_user: User,
+) -> TravelReadinessResponse:
+    context = build_trip_ai_context(db, trip_id, current_user)
+    provider = get_ai_provider()
+    payload = {"intent": "travel_readiness"}
+    ai_analysis = run_ai_provider(lambda: provider.analyze_travel_readiness(context, payload))
+    dashboard = build_readiness_dashboard(context, ai_analysis)
+    return validate_ai_response(lambda: TravelReadinessResponse(**dashboard))
+
+
+def generate_risk_analysis(db: Session, trip_id: uuid.UUID, current_user: User):
+    return generate_readiness_dashboard(db=db, trip_id=trip_id, current_user=current_user).top_risks
+
+
+def generate_alerts(db: Session, trip_id: uuid.UUID, current_user: User):
+    return generate_readiness_dashboard(db=db, trip_id=trip_id, current_user=current_user).alerts
+
+
+def generate_recommendations(db: Session, trip_id: uuid.UUID, current_user: User) -> list[str]:
+    return generate_readiness_dashboard(db=db, trip_id=trip_id, current_user=current_user).recommendations
 
 
 def list_ai_suggestions(

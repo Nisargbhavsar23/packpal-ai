@@ -114,3 +114,18 @@ def destination_insights_contract() -> dict[str, Any]:
         "transportation_notes": ["Transportation note"],
         "safety_reminders": ["Safety reminder"],
     }
+
+
+def readiness_analysis_contract() -> dict[str, Any]:
+    return {
+        "top_risks": [
+            {
+                "severity": "HIGH | MEDIUM | LOW",
+                "title": "Concise risk title",
+                "description": "Destination, weather, trip type, duration, and checklist-aware risk description",
+            }
+        ],
+        "recommendations": [
+            "Top action item that is destination-aware, weather-aware, and checklist-aware"
+        ],
+    }

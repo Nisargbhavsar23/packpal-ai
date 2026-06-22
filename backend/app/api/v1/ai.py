@@ -8,6 +8,8 @@ from app.db.database import get_db
 from app.models.user import User
 from app.schemas.ai import (
     AISuggestionHistoryItem,
+    AIAlertItem,
+    AIRiskItem,
     ApplyItemsRequest,
     ApplyItemsResponse,
     AskAssistantRequest,
@@ -17,6 +19,7 @@ from app.schemas.ai import (
     MissingEssentialsResponse,
     PackingListRequest,
     PackingListResponse,
+    TravelReadinessResponse,
     TripSummaryRequest,
     TripSummaryResponse,
 )
@@ -25,7 +28,11 @@ from app.services.ai_assistant_service import (
     ask_assistant,
     find_missing_essentials,
     generate_destination_insights,
+    generate_alerts,
     generate_packing_list,
+    generate_readiness_dashboard,
+    generate_recommendations,
+    generate_risk_analysis,
     generate_trip_summary,
     list_ai_suggestions,
 )
@@ -85,6 +92,42 @@ def destination_insights_endpoint(
     current_user: User = Depends(get_current_active_user),
 ):
     return generate_destination_insights(db=db, trip_id=trip_id, current_user=current_user)
+
+
+@router.get("/risk-analysis", response_model=list[AIRiskItem])
+def risk_analysis_endpoint(
+    trip_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return generate_risk_analysis(db=db, trip_id=trip_id, current_user=current_user)
+
+
+@router.get("/alerts", response_model=list[AIAlertItem])
+def alerts_endpoint(
+    trip_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return generate_alerts(db=db, trip_id=trip_id, current_user=current_user)
+
+
+@router.get("/recommendations", response_model=list[str])
+def recommendations_endpoint(
+    trip_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return generate_recommendations(db=db, trip_id=trip_id, current_user=current_user)
+
+
+@router.get("/readiness", response_model=TravelReadinessResponse)
+def readiness_endpoint(
+    trip_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    return generate_readiness_dashboard(db=db, trip_id=trip_id, current_user=current_user)
 
 
 @router.get("/suggestions", response_model=list[AISuggestionHistoryItem])
