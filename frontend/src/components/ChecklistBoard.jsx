@@ -65,12 +65,19 @@ function ChecklistBoard({ members = [], onItemsChange, onMutationComplete, refre
     setError("");
     try {
       const hasActiveFilters = Object.values(filters).some(Boolean);
-      const filteredItemsRequest = getTripItems(tripId, filters);
-      const allItemsRequest = hasActiveFilters ? getTripItems(tripId, {}) : filteredItemsRequest;
-      const [categoryData, itemData, allItemData] = await Promise.all([getCategories(), filteredItemsRequest, allItemsRequest]);
+      const [categoryData, itemData] = await Promise.all([
+        getCategories(),
+        getTripItems(tripId, filters),
+      ]);
       setCategories(categoryData);
       setItems(itemData);
-      onItemsChange?.(allItemData);
+      // If no filters are active, filtered = all items; avoid extra API call
+      if (hasActiveFilters) {
+        const allItemData = await getTripItems(tripId, {});
+        onItemsChange?.(allItemData);
+      } else {
+        onItemsChange?.(itemData);
+      }
     } catch (loadError) {
       if (handleAuthFailure(loadError)) {
         return;

@@ -69,7 +69,7 @@ def calculate_overall_score(context: dict[str, Any], category_scores: dict[str, 
     required_found = sum(count_matched_essentials(context, values) for values in required.values())
     essentials_score = 0 if required_total == 0 else (required_found / required_total) * 30
 
-    category_average = sum(category["score"] for category in category_scores.values()) / len(category_scores)
+    category_average = sum(category["score"] for category in category_scores.values()) / max(len(category_scores), 1)
     category_score = category_average * 0.3
 
     penalty = (high_priority_pending_count(context) * 4) + (overdue_item_count(context) * 6)

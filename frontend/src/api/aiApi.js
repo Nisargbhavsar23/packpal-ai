@@ -34,3 +34,13 @@ export async function applyAISuggestedItems(tripId, payload) {
   const response = await axiosClient.post(`/api/v1/trips/${tripId}/ai/apply-items`, payload);
   return response.data;
 }
+
+export async function analyzeGroupPacking(tripId) {
+  const response = await axiosClient.get(`/api/v1/trips/${tripId}/ai/group-packing`);
+  return response.data;
+}
+
+export async function generateBudgetPlan(tripId, payload) {
+  const response = await axiosClient.post(`/api/v1/trips/${tripId}/ai/budget-plan`, payload);
+  return response.data;
+}

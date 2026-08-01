@@ -10,8 +10,10 @@ from app.models.enums import ItemPriority
 from app.services.ai_prompt_service import (
     SYSTEM_PROMPT,
     ask_assistant_contract,
+    budget_planner_contract,
     build_json_prompt,
     destination_insights_contract,
+    group_packing_contract,
     missing_essentials_contract,
     packing_list_contract,
     readiness_analysis_contract,
@@ -70,6 +72,14 @@ class BaseAIProvider(ABC):
 
     @abstractmethod
     def analyze_travel_readiness(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def analyze_group_packing(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def generate_budget_plan(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError
 
 
@@ -393,6 +403,210 @@ class MockAIProvider(BaseAIProvider):
             "recommendations": _dedupe_preserve_order(recommendations)[:5],
         }
 
+    def analyze_group_packing(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        members = context.get("members", [])
+        items = context.get("items", [])
+        trip = context.get("trip", {})
+        destination = trip.get("destination", "the trip")
+
+        # Build per-member assignment map
+        member_summaries = []
+        all_item_names: dict[str, list[str]] = {}  # item_name -> [member_names]
+
+        total_assigned = sum(
+            1 for item in items if item.get("assigned_to_id")
+        )
+        avg_load = total_assigned / max(len(members), 1)
+
+        for member in members:
+            assigned = [item for item in items if item.get("assigned_to_id") == member["user_id"]]
+            pending = [item for item in assigned if item.get("status") == "PENDING"]
+            packed_or_delivered = len(assigned) - len(pending)
+            readiness = 0 if not assigned else round((packed_or_delivered / len(assigned)) * 100)
+
+            count = len(assigned)
+            if count == 0:
+                load_status = "Empty"
+            elif count > avg_load * 1.5:
+                load_status = "Overloaded"
+            elif count < avg_load * 0.5 and avg_load > 0:
+                load_status = "Underloaded"
+            else:
+                load_status = "Balanced"
+
+            member_summaries.append({
+                "member_name": member["name"],
+                "assigned_items": count,
+                "pending_items": len(pending),
+                "readiness_score": readiness,
+                "load_status": load_status,
+            })
+
+            for item in assigned:
+                name = normalize_name(item.get("name", ""))
+                all_item_names.setdefault(name, []).append(member["name"])
+
+        # Detect duplicates (same item assigned to multiple members)
+        duplicate_detections = []
+        for item_name, assignees in all_item_names.items():
+            if len(assignees) > 1:
+                duplicate_detections.append({
+                    "item_name": item_name.title(),
+                    "assigned_to": assignees,
+                    "recommendation": f"Only one person needs to bring this. Suggest assigning it to {assignees[0]}.",
+                })
+
+        # Unassigned essential items
+        unassigned = [item for item in items if not item.get("assigned_to_id")]
+        essentials = ["passport", "first aid", "medicine", "phone charger", "government id", "ticket", "booking"]
+        unassigned_essentials = [
+            item for item in unassigned
+            if any(e in normalize_name(item.get("name", "")) for e in essentials)
+        ]
+
+        # Load balance recommendations
+        load_balance_recommendations = []
+        overloaded = [m for m in member_summaries if m["load_status"] == "Overloaded"]
+        underloaded = [m for m in member_summaries if m["load_status"] in ("Underloaded", "Empty")]
+        if overloaded and underloaded:
+            for over in overloaded[:2]:
+                for under in underloaded[:2]:
+                    load_balance_recommendations.append(
+                        f"{over['member_name']} has {over['assigned_items']} items while {under['member_name']} has {under['assigned_items']}. "
+                        f"Move some items from {over['member_name']} to {under['member_name']} for a balanced distribution."
+                    )
+        if unassigned:
+            load_balance_recommendations.append(
+                f"{len(unassigned)} item(s) are unassigned. Assign them to members before the trip date."
+            )
+        if duplicate_detections:
+            load_balance_recommendations.append(
+                f"{len(duplicate_detections)} duplicate assignment(s) detected. Review and keep only one per item."
+            )
+        if not load_balance_recommendations:
+            load_balance_recommendations.append(
+                f"Group packing looks well-balanced for {destination}. Review pending items before travel."
+            )
+
+        # Group readiness score
+        all_total = len(items)
+        all_ready = sum(1 for item in items if item.get("status") in {"PACKED", "DELIVERED"})
+        group_readiness_score = 0 if all_total == 0 else round((all_ready / all_total) * 100)
+
+        group_readiness_notes = []
+        if group_readiness_score >= 80:
+            group_readiness_notes.append(f"Group is largely ready for {destination}. Final checks on pending high-priority items recommended.")
+        elif group_readiness_score >= 50:
+            group_readiness_notes.append(f"Group is making progress. Focus on high-priority pending items for {destination}.")
+        else:
+            group_readiness_notes.append(f"Group packing for {destination} needs attention. Many items are still pending.")
+
+        return {
+            "summary": f"Group packing analysis for {destination} with {len(members)} member(s). {all_total} total items, {all_total - all_ready} pending.",
+            "group_readiness_score": group_readiness_score,
+            "member_summaries": member_summaries,
+            "duplicate_detections": duplicate_detections[:5],
+            "unassigned_essential_count": len(unassigned_essentials),
+            "load_balance_recommendations": _dedupe_preserve_order(load_balance_recommendations)[:5],
+            "group_readiness_notes": group_readiness_notes,
+        }
+
+    def generate_budget_plan(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        trip = context.get("trip", {})
+        members = context.get("members", [])
+        destination = trip.get("destination", "the destination")
+        trip_type = trip.get("trip_type", "travel")
+        duration = trip.get("duration_days", 1)
+        context_text = _context_text(context, request_data)
+        currency = (request_data.get("currency") or "INR").upper()
+        budget_style = (request_data.get("budget_style") or "mid-range").lower()
+        group_size = request_data.get("group_size") or max(len(members), 1)
+
+        # Base daily per-person rates (INR) by style
+        base_rates = {
+            "budget": {"accommodation": 800, "food": 500, "transport": 400, "activities": 200, "shopping": 200, "miscellaneous": 150},
+            "mid-range": {"accommodation": 2500, "food": 1200, "transport": 800, "activities": 600, "shopping": 500, "miscellaneous": 300},
+            "premium": {"accommodation": 8000, "food": 3000, "transport": 2000, "activities": 1500, "shopping": 1500, "miscellaneous": 800},
+        }
+        rates = base_rates.get(budget_style, base_rates["mid-range"])
+
+        # Destination multipliers
+        multiplier = 1.0
+        if any(w in context_text for w in ["maldives", "switzerland"]):
+            multiplier = 4.5
+        elif any(w in context_text for w in ["japan", "singapore", "dubai"]):
+            multiplier = 3.0
+        elif any(w in context_text for w in ["bali", "thailand", "vietnam"]):
+            multiplier = 1.8
+        elif any(w in context_text for w in ["goa", "manali", "ladakh"]):
+            multiplier = 1.2
+
+        def amt(key: str) -> float:
+            return round(rates[key] * multiplier * duration * group_size, 2)
+
+        def per_person(key: str) -> float:
+            return round(rates[key] * multiplier * duration, 2)
+
+        emergency_buffer = round(amt("accommodation") * 0.10, 2)
+        emergency_per = round(per_person("accommodation") * 0.10, 2)
+
+        categories = [
+            {"category": "Accommodation", "estimated_amount": amt("accommodation"), "per_person_amount": per_person("accommodation"), "notes": f"Estimated for {duration} night(s) at {budget_style} level."},
+            {"category": "Food", "estimated_amount": amt("food"), "per_person_amount": per_person("food"), "notes": f"Includes meals, beverages, and snacks for {duration} days."},
+            {"category": "Transportation", "estimated_amount": amt("transport"), "per_person_amount": per_person("transport"), "notes": "Includes local travel, transfers, and intercity transport."},
+            {"category": "Activities", "estimated_amount": amt("activities"), "per_person_amount": per_person("activities"), "notes": "Sightseeing, excursions, and entertainment."},
+            {"category": "Shopping", "estimated_amount": amt("shopping"), "per_person_amount": per_person("shopping"), "notes": "Souvenirs, clothing, and personal purchases."},
+            {"category": "Miscellaneous", "estimated_amount": amt("miscellaneous"), "per_person_amount": per_person("miscellaneous"), "notes": "Tips, toiletries, SIM cards, and unexpected expenses."},
+            {"category": "Emergency Buffer", "estimated_amount": emergency_buffer, "per_person_amount": emergency_per, "notes": "Recommended 10% reserve for unexpected costs."},
+        ]
+
+        total = round(sum(c["estimated_amount"] for c in categories), 2)
+        per_person_total = round(total / group_size, 2)
+
+        # Currency conversion approximations
+        inr_rates = {"INR": 1, "USD": 84, "EUR": 91, "GBP": 107, "AED": 23, "SGD": 63}
+        rate = inr_rates.get(currency, 1)
+        total_in_currency = round(total / rate, 2)
+        per_person_in_currency = round(per_person_total / rate, 2)
+
+        for c in categories:
+            c["estimated_amount"] = round(c["estimated_amount"] / rate, 2)
+            c["per_person_amount"] = round(c["per_person_amount"] / rate, 2)
+
+        usd_equiv = round(total / 84, 2) if currency != "USD" else None
+        inr_equiv = round(total, 2) if currency != "INR" else None
+
+        budget_advice = [
+            f"Allocate the largest share (~35-40%) to accommodation for {destination}.",
+            "Keep 10% as an emergency buffer — unexpected costs are common on group trips.",
+            "Split shared expenses like accommodation and transport equally across all members.",
+        ]
+        hidden_costs = [
+            "Tourist taxes and resort fees are not always included in booking prices.",
+            "Airport transfer and luggage fees can add 5-10% to transport costs.",
+            "Entry fees for attractions are often underestimated on group itineraries.",
+        ]
+        money_saving_tips = [
+            "Book accommodation and transport early for 15-25% savings.",
+            "Use group meal plans or self-catering options to reduce food costs.",
+            "Share taxis and local rides across the group to cut per-person transport costs.",
+        ]
+
+        return {
+            "summary": f"Estimated {budget_style} budget for {group_size} person(s) traveling to {destination} for {duration} days.",
+            "currency": currency,
+            "group_size": group_size,
+            "duration_days": duration,
+            "total_estimated": total_in_currency,
+            "per_person_total": per_person_in_currency,
+            "categories": categories,
+            "budget_advice": budget_advice,
+            "hidden_costs": hidden_costs,
+            "money_saving_tips": money_saving_tips,
+            "usd_equivalent": usd_equiv,
+            "inr_equivalent": inr_equiv,
+        }
+
 
 class GeminiAIProvider(BaseAIProvider):
     provider_name = "gemini"
@@ -433,6 +647,22 @@ class GeminiAIProvider(BaseAIProvider):
             context,
             request_data,
             readiness_analysis_contract(),
+        )
+
+    def analyze_group_packing(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        return self._generate_json(
+            "Analyze the group's packing status: detect duplicate assignments, assess per-member load balance, compute a group readiness score, and provide load distribution recommendations.",
+            context,
+            request_data,
+            group_packing_contract(),
+        )
+
+    def generate_budget_plan(self, context: dict[str, Any], request_data: dict[str, Any]) -> dict[str, Any]:
+        return self._generate_json(
+            "Generate a detailed travel budget estimate for this trip. Use destination, trip type, duration, group size, and travel style to estimate costs across all categories.",
+            context,
+            request_data,
+            budget_planner_contract(),
         )
 
     def _generate_json(

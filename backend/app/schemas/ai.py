@@ -7,18 +7,26 @@ from pydantic import BaseModel, Field, field_validator
 from app.models.enums import ItemPriority
 from app.schemas.item import ItemRead
 
-SuggestionType = Literal["PACKING_LIST", "MISSING_ESSENTIALS", "TRIP_SUMMARY", "ASK_ASSISTANT", "DESTINATION_INSIGHTS"]
+SuggestionType = Literal[
+    "PACKING_LIST",
+    "MISSING_ESSENTIALS",
+    "TRIP_SUMMARY",
+    "ASK_ASSISTANT",
+    "DESTINATION_INSIGHTS",
+    "GROUP_PACKING_ANALYSIS",
+    "BUDGET_PLAN",
+]
 
 
 class PackingListRequest(BaseModel):
-    travel_style: str | None = None
-    weather_notes: str | None = None
-    special_needs: str | None = None
-    extra_instructions: str | None = None
+    travel_style: str | None = Field(default=None, max_length=200)
+    weather_notes: str | None = Field(default=None, max_length=200)
+    special_needs: str | None = Field(default=None, max_length=200)
+    extra_instructions: str | None = Field(default=None, max_length=300)
 
 
 class MissingEssentialsRequest(BaseModel):
-    focus: str | None = None
+    focus: str | None = Field(default=None, max_length=200)
 
 
 class TripSummaryRequest(BaseModel):
@@ -26,7 +34,7 @@ class TripSummaryRequest(BaseModel):
 
 
 class AskAssistantRequest(BaseModel):
-    question: str
+    question: str = Field(max_length=500)
 
     @field_validator("question")
     @classmethod
@@ -190,3 +198,72 @@ class ApplyItemsResponse(BaseModel):
     message: str
     created_items: list[ItemRead]
     skipped_items: list[SkippedSuggestedItem]
+
+
+# ─── Group Packing Analysis ──────────────────────────────────────────────────
+
+class GroupPackingRequest(BaseModel):
+    """Request for AI-powered group packing analysis."""
+    pass  # Uses trip context; no additional user input required
+
+
+class DuplicateItemDetection(BaseModel):
+    item_name: str
+    assigned_to: list[str]
+    recommendation: str
+
+
+class MemberLoadSummary(BaseModel):
+    member_name: str
+    assigned_items: int
+    pending_items: int
+    readiness_score: int = Field(ge=0, le=100)
+    load_status: str  # "Overloaded" | "Balanced" | "Underloaded" | "Empty"
+
+
+class GroupPackingAnalysisResponse(AIBaseResponse):
+    type: Literal["GROUP_PACKING_ANALYSIS"] = "GROUP_PACKING_ANALYSIS"
+    summary: str
+    group_readiness_score: int = Field(ge=0, le=100)
+    member_summaries: list[MemberLoadSummary]
+    duplicate_detections: list[DuplicateItemDetection]
+    unassigned_essential_count: int
+    load_balance_recommendations: list[str]
+    group_readiness_notes: list[str]
+
+
+# ─── Budget Planner ───────────────────────────────────────────────────────────
+
+class BudgetPlanRequest(BaseModel):
+    """Request for AI-powered travel budget estimation."""
+    currency: str = Field(default="INR", pattern="^(INR|USD|EUR|GBP|AED|SGD)$")
+    budget_style: str | None = Field(
+        default="mid-range",
+        description="budget | mid-range | premium",
+        max_length=50,
+    )
+    group_size: int | None = Field(default=None, ge=1, le=50)
+    extra_notes: str | None = Field(default=None, max_length=300)
+
+
+class BudgetCategory(BaseModel):
+    category: str
+    estimated_amount: float = Field(ge=0)
+    per_person_amount: float = Field(ge=0)
+    notes: str
+
+
+class BudgetPlanResponse(AIBaseResponse):
+    type: Literal["BUDGET_PLAN"] = "BUDGET_PLAN"
+    summary: str
+    currency: str
+    group_size: int
+    duration_days: int
+    total_estimated: float = Field(ge=0)
+    per_person_total: float = Field(ge=0)
+    categories: list[BudgetCategory]
+    budget_advice: list[str]
+    hidden_costs: list[str]
+    money_saving_tips: list[str]
+    usd_equivalent: float | None = None
+    inr_equivalent: float | None = None

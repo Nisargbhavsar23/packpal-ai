@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  analyzeGroupPacking,
   applyAISuggestedItems,
   askAssistant,
   findMissingEssentials,
+  generateBudgetPlan,
   getDestinationInsights,
   getTravelReadiness,
   generatePackingList,
@@ -11,7 +13,9 @@ import {
 } from "../api/aiApi";
 import { useAuth } from "../context/AuthContext";
 import Alert from "./Alert";
+import AIBudgetPlanner from "./AIBudgetPlanner";
 import AIDestinationInsights from "./AIDestinationInsights";
+import AIGroupPackingAnalysis from "./AIGroupPackingAnalysis";
 import AIReadinessDashboard from "./AIReadinessDashboard";
 import AIPackingList, { getItemKey } from "./AIPackingList";
 import AIQuestionBox from "./AIQuestionBox";
@@ -25,6 +29,8 @@ const tabs = [
   { id: "ask", label: "Ask Assistant" },
   { id: "insights", label: "Destination Insights" },
   { id: "readiness", label: "Travel Readiness" },
+  { id: "group", label: "👥 Group AI" },
+  { id: "budget", label: "💰 Budget Planner" },
 ];
 
 function getApiError(error, fallback) {
@@ -130,6 +136,8 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, r
   const [readinessResult, setReadinessResult] = useState(null);
   const [selectedPackingKeys, setSelectedPackingKeys] = useState([]);
   const [selectedMissingKeys, setSelectedMissingKeys] = useState([]);
+  const [groupPackingResult, setGroupPackingResult] = useState(null);
+  const [budgetResult, setBudgetResult] = useState(null);
   const askRequestIdRef = useRef(0);
   const readinessRequestIdRef = useRef(0);
   const lastReadinessRefreshSignalRef = useRef(0);
@@ -291,6 +299,32 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, r
 
   async function handleTravelReadiness() {
     await loadTravelReadiness({ clearMessages: true, showLoading: true });
+  }
+
+  async function handleGroupPacking() {
+    resetMessages();
+    setLoadingAction("group");
+    try {
+      const result = await analyzeGroupPacking(trip.id);
+      setGroupPackingResult(result);
+    } catch (requestError) {
+      setError(getApiError(requestError, "Failed to analyze group packing."));
+    } finally {
+      setLoadingAction("");
+    }
+  }
+
+  async function handleBudgetPlan(payload) {
+    resetMessages();
+    setLoadingAction("budget");
+    try {
+      const result = await generateBudgetPlan(trip.id, payload);
+      setBudgetResult(result);
+    } catch (requestError) {
+      setError(getApiError(requestError, "Failed to generate budget plan."));
+    } finally {
+      setLoadingAction("");
+    }
   }
 
   async function handleApplyItems(suggestionId, selectedItems) {
@@ -485,6 +519,22 @@ function AIAssistantPanel({ checklistItems = [], members = [], onItemsApplied, r
           isLoading={loadingAction === "readiness"}
           onGenerate={handleTravelReadiness}
           readiness={readinessResult}
+        />
+      )}
+
+      {activeTab === "group" && (
+        <AIGroupPackingAnalysis
+          analysis={groupPackingResult}
+          isLoading={loadingAction === "group"}
+          onGenerate={handleGroupPacking}
+        />
+      )}
+
+      {activeTab === "budget" && (
+        <AIBudgetPlanner
+          budget={budgetResult}
+          isLoading={loadingAction === "budget"}
+          onGenerate={handleBudgetPlan}
         />
       )}
     </section>

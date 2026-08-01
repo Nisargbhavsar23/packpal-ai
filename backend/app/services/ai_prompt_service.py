@@ -129,3 +129,59 @@ def readiness_analysis_contract() -> dict[str, Any]:
             "Top action item that is destination-aware, weather-aware, and checklist-aware"
         ],
     }
+
+
+def group_packing_contract() -> dict[str, Any]:
+    """Contract for group packing analysis — duplicate detection, load balancing, group readiness."""
+    return {
+        "summary": "Short summary of group packing status.",
+        "group_readiness_score": 75,
+        "member_summaries": [
+            {
+                "member_name": "Member name",
+                "assigned_items": 5,
+                "pending_items": 2,
+                "readiness_score": 60,
+                "load_status": "Balanced | Overloaded | Underloaded | Empty",
+            }
+        ],
+        "duplicate_detections": [
+            {
+                "item_name": "Item packed by multiple members unnecessarily",
+                "assigned_to": ["Member A", "Member B"],
+                "recommendation": "Keep only one; who should carry it",
+            }
+        ],
+        "unassigned_essential_count": 2,
+        "load_balance_recommendations": [
+            "Specific recommendation to balance packing load across members"
+        ],
+        "group_readiness_notes": [
+            "High-level group readiness observation"
+        ],
+    }
+
+
+def budget_planner_contract() -> dict[str, Any]:
+    """Contract for AI travel budget estimation."""
+    return {
+        "summary": "Budget summary for the trip.",
+        "currency": "INR",
+        "group_size": 4,
+        "duration_days": 5,
+        "total_estimated": 80000.0,
+        "per_person_total": 20000.0,
+        "categories": [
+            {
+                "category": "Accommodation | Food | Transportation | Activities | Emergency Buffer | Shopping | Miscellaneous",
+                "estimated_amount": 30000.0,
+                "per_person_amount": 7500.0,
+                "notes": "Context-specific note about this expense category",
+            }
+        ],
+        "budget_advice": ["Actionable budget allocation advice"],
+        "hidden_costs": ["Common hidden cost or fee to watch out for"],
+        "money_saving_tips": ["Practical tip to reduce expenses"],
+        "usd_equivalent": 960.0,
+        "inr_equivalent": 80000.0,
+    }

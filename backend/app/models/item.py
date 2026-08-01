@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 
 from sqlalchemy import Date, DateTime, Enum as SQLEnum, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -7,10 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.models.enums import ItemPriority, ItemStatus
-
-
-def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+from app.utils.time import utc_now
 
 
 class Item(Base):

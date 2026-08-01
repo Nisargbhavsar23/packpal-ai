@@ -20,7 +20,10 @@ from app.schemas.ai import (
     ApplyItemsResponse,
     AskAssistantRequest,
     AskAssistantResponse,
+    BudgetPlanRequest,
+    BudgetPlanResponse,
     DestinationInsightsResponse,
+    GroupPackingAnalysisResponse,
     MissingEssentialsRequest,
     MissingEssentialsResponse,
     PackingListRequest,
@@ -199,6 +202,49 @@ def generate_alerts(db: Session, trip_id: uuid.UUID, current_user: User):
 
 def generate_recommendations(db: Session, trip_id: uuid.UUID, current_user: User) -> list[str]:
     return generate_readiness_dashboard(db=db, trip_id=trip_id, current_user=current_user).recommendations
+
+
+def analyze_group_packing(
+    db: Session,
+    trip_id: uuid.UUID,
+    current_user: User,
+) -> GroupPackingAnalysisResponse:
+    context = build_trip_ai_context(db, trip_id, current_user)
+    provider = get_ai_provider()
+    payload: dict[str, Any] = {}
+    output = run_ai_provider(lambda: provider.analyze_group_packing(context, payload))
+
+    response_data = {
+        "provider": provider.provider_name,
+        "provider_note": provider.provider_note,
+        "type": "GROUP_PACKING_ANALYSIS",
+        **output,
+    }
+    response = validate_ai_response(lambda: GroupPackingAnalysisResponse(suggestion_id=uuid.uuid4(), **response_data))
+    suggestion = save_ai_suggestion(db, trip_id, "GROUP_PACKING_ANALYSIS", payload, response_data, provider.provider_name)
+    return response.model_copy(update={"suggestion_id": suggestion.id})
+
+
+def generate_budget_plan(
+    db: Session,
+    trip_id: uuid.UUID,
+    request_data: BudgetPlanRequest,
+    current_user: User,
+) -> BudgetPlanResponse:
+    context = build_trip_ai_context(db, trip_id, current_user)
+    provider = get_ai_provider()
+    payload = request_data.model_dump()
+    output = run_ai_provider(lambda: provider.generate_budget_plan(context, payload))
+
+    response_data = {
+        "provider": provider.provider_name,
+        "provider_note": provider.provider_note,
+        "type": "BUDGET_PLAN",
+        **output,
+    }
+    response = validate_ai_response(lambda: BudgetPlanResponse(suggestion_id=uuid.uuid4(), **response_data))
+    suggestion = save_ai_suggestion(db, trip_id, "BUDGET_PLAN", payload, response_data, provider.provider_name)
+    return response.model_copy(update={"suggestion_id": suggestion.id})
 
 
 def list_ai_suggestions(

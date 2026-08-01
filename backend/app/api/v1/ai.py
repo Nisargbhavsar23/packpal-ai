@@ -14,7 +14,10 @@ from app.schemas.ai import (
     ApplyItemsResponse,
     AskAssistantRequest,
     AskAssistantResponse,
+    BudgetPlanRequest,
+    BudgetPlanResponse,
     DestinationInsightsResponse,
+    GroupPackingAnalysisResponse,
     MissingEssentialsRequest,
     MissingEssentialsResponse,
     PackingListRequest,
@@ -24,11 +27,13 @@ from app.schemas.ai import (
     TripSummaryResponse,
 )
 from app.services.ai_assistant_service import (
+    analyze_group_packing,
     apply_suggested_items,
     ask_assistant,
     find_missing_essentials,
-    generate_destination_insights,
     generate_alerts,
+    generate_budget_plan,
+    generate_destination_insights,
     generate_packing_list,
     generate_readiness_dashboard,
     generate_recommendations,
@@ -153,3 +158,24 @@ def apply_items_endpoint(
     current_user: User = Depends(get_current_active_user),
 ):
     return apply_suggested_items(db=db, trip_id=trip_id, request_data=request_data, current_user=current_user)
+
+
+@router.get("/group-packing", response_model=GroupPackingAnalysisResponse)
+def group_packing_endpoint(
+    trip_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Analyze group packing: duplicate detection, load balancing, and group readiness score."""
+    return analyze_group_packing(db=db, trip_id=trip_id, current_user=current_user)
+
+
+@router.post("/budget-plan", response_model=BudgetPlanResponse)
+def budget_plan_endpoint(
+    trip_id: uuid.UUID,
+    request_data: BudgetPlanRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Generate an AI-powered travel budget estimate for this trip."""
+    return generate_budget_plan(db=db, trip_id=trip_id, request_data=request_data, current_user=current_user)

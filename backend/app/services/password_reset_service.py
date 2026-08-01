@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -11,6 +12,9 @@ from app.core.security import hash_password
 from app.models.password_reset_token import PasswordResetToken
 from app.models.user import User
 from app.services.auth_service import get_user_by_email
+from app.services.email_service import send_password_reset_email
+
+logger = logging.getLogger(__name__)
 
 RESET_TOKEN_EXPIRE_MINUTES = 15
 FORGOT_PASSWORD_MESSAGE = "If the email exists, a password reset link has been generated."
@@ -26,15 +30,26 @@ def create_raw_reset_token() -> str:
     return secrets.token_urlsafe(32)
 
 
-def send_password_reset_email_placeholder(user: User, reset_url: str) -> None:
-    # Real email delivery will be added in a later production integration phase.
-    return None
-
-
 def create_password_reset_token(db: Session, email: str) -> dict[str, str | None]:
     user = get_user_by_email(db, email)
     is_development = settings.ENVIRONMENT.lower() == "development"
-    message = FORGOT_PASSWORD_MESSAGE if is_development else PRODUCTION_FORGOT_PASSWORD_MESSAGE
+
+    # In production-mode with SMTP configured, use the production message.
+    # In development, always show the dev message (token in response).
+    if is_development:
+        message = FORGOT_PASSWORD_MESSAGE
+    elif settings.resend_configured:
+        message = PRODUCTION_FORGOT_PASSWORD_MESSAGE
+    else:
+        # Production env but Resend not configured — fall back to dev message so
+        # the reset link is visible in the API response (same as pure dev mode).
+        logger.warning(
+            "ENVIRONMENT=%s but Resend is not configured. "
+            "Returning reset token in response. "
+            "Set RESEND_API_KEY and RESEND_FROM_EMAIL in .env to send real emails.",
+            settings.ENVIRONMENT,
+        )
+        message = FORGOT_PASSWORD_MESSAGE
 
     if user is None:
         return {
@@ -43,6 +58,7 @@ def create_password_reset_token(db: Session, email: str) -> dict[str, str | None
             "reset_url": None,
         }
 
+    # Invalidate any existing unused tokens for this user
     now = datetime.now(timezone.utc)
     unused_tokens = db.scalars(
         select(PasswordResetToken).where(
@@ -64,13 +80,30 @@ def create_password_reset_token(db: Session, email: str) -> dict[str, str | None
     )
     db.commit()
 
-    if not is_development:
-        send_password_reset_email_placeholder(user, reset_url)
+    # Attempt real email delivery when Resend is configured
+    email_sent = False
+    if settings.resend_configured:
+        email_sent = send_password_reset_email(
+            to_email=user.email,
+            to_name=user.name,
+            reset_url=reset_url,
+            expire_minutes=RESET_TOKEN_EXPIRE_MINUTES,
+        )
+        if not email_sent:
+            logger.error(
+                "Failed to deliver password reset email to %s via Resend. "
+                "The reset token is still valid — user can request again.",
+                user.email,
+            )
+
+    # In development mode, OR when Resend is not configured (any env), expose the
+    # reset token/URL in the API response so developers can still test the flow.
+    expose_token = is_development or not settings.resend_configured
 
     return {
         "message": message,
-        "reset_token": raw_token if is_development else None,
-        "reset_url": reset_url if is_development else None,
+        "reset_token": raw_token if expose_token else None,
+        "reset_url": reset_url if expose_token else None,
     }
 
 
