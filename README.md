@@ -160,7 +160,7 @@ PACKPAL_AI/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Nisargbhavsar25/packpal-ai.git
+git clone https://github.com/Nisargbhavsar23/packpal-ai.git
 cd packpal-ai
 ```
 
